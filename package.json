@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "next": "latest",
-    "openai": "^5.18.1",
+    "openai": "^3.2.1",
     "react": "latest",
     "react-dom": "latest"
   },
