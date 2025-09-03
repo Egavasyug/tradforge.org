@@ -10,11 +10,8 @@ export default function Home() {
       <main className="p-6">
         <h1 className="text-3xl font-bold">Welcome to TradForge</h1>
         <p className="mt-4">This is the official frontend for the cultural DAO.</p>
-
-        {/* Assistant UI (ForgeAgent vΞ) */}
-        <div className="mt-8">
-          <Assistant />
-        </div>
+      {/* Assistant UI here */}
+        <Assistant />
       </main>
     </div>
   )
