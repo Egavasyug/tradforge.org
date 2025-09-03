@@ -1,13 +1,11 @@
-// pages/api/assistant.ts
+// src/pages/api/assistant.ts
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(configuration);
 
 export default async function handler(
   req: NextApiRequest,
@@ -24,24 +22,27 @@ export default async function handler(
   }
 
   try {
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
           role: 'system',
-          content: 'You are Angel, the TradForge AI assistant. Speak with warmth and purpose. Keep it grounded in cultural tradition, family, and identity.',
+          content:
+            'You are Angel, the AI guide for TradForge. Respond with a tone that blends wisdom, warmth, and tradition. Your mission is to help users prioritize family, identity, fertility, and cultural resilience.',
         },
         {
           role: 'user',
           content: input,
         },
       ],
+      temperature: 0.7,
+      max_tokens: 250,
     });
 
-    const reply = completion.data.choices[0]?.message?.content ?? '⚠️ No response.';
+    const reply = completion.choices[0]?.message?.content?.trim() ?? '⚠️ No reply from Angel.';
     res.status(200).json({ reply });
   } catch (error: any) {
-    console.error('[OpenAI Error]', error.response?.data || error.message);
-    res.status(500).json({ error: 'OpenAI API call failed' });
+    console.error('[OpenAI API Error]', error?.response?.data || error.message);
+    res.status(500).json({ error: 'Something went wrong with Angel’s connection to the stars.' });
   }
 }
