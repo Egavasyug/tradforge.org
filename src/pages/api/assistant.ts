@@ -21,6 +21,10 @@ export default async function handler(
     return res.status(400).json({ error: 'No input provided' });
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(500).json({ error: 'Missing OpenAI API Key' });
+  }
+
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
@@ -28,7 +32,7 @@ export default async function handler(
         {
           role: 'system',
           content:
-            'You are Angel, the AI guide for TradForge. Respond with a tone that blends wisdom, warmth, and tradition. Your mission is to help users prioritize family, identity, fertility, and cultural resilience.',
+            'You are Angel, the TradForge AI. Offer deeply reflective guidance rooted in family, tradition, fertility, and cultural strength.',
         },
         {
           role: 'user',
@@ -36,13 +40,19 @@ export default async function handler(
         },
       ],
       temperature: 0.7,
-      max_tokens: 250,
+      max_tokens: 300,
     });
 
-    const reply = completion.choices[0]?.message?.content?.trim() ?? '⚠️ No reply from Angel.';
+    const reply = completion.choices?.[0]?.message?.content?.trim();
+
+    if (!reply) {
+      console.error('No message content returned from OpenAI', completion);
+      return res.status(500).json({ error: 'No valid response from Angel.' });
+    }
+
     res.status(200).json({ reply });
   } catch (error: any) {
-    console.error('[OpenAI API Error]', error?.response?.data || error.message);
-    res.status(500).json({ error: 'Something went wrong with Angel’s connection to the stars.' });
+    console.error('❌ OpenAI API Error:', error?.response?.data || error.message);
+    res.status(500).json({ error: 'Angel encountered a connection issue.' });
   }
 }
