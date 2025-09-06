@@ -11,7 +11,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { input, userId } = req.body as { input?: string; userId?: string };
+  const { input, userId, threadId: clientThreadId } = req.body as {
+    input?: string;
+    userId?: string;
+    threadId?: string | null;
+  };
 
   if (!input || typeof input !== 'string' || !userId) {
     return res.status(400).json({ error: 'Invalid input or missing userId' });
@@ -28,9 +32,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const openai = new OpenAI({ apiKey });
 
   try {
-    let threadId = threadStore[userId];
+    // Prefer client-provided threadId to ensure persistence across serverless invocations
+    let threadId = clientThreadId || threadStore[userId];
 
-    // Create a thread for the user if one doesn't exist
+    // Create a thread if none provided/known
     if (!threadId) {
       const thread = await openai.beta.threads.create({});
       if (typeof thread.id !== 'string') {
@@ -38,8 +43,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(500).json({ error: 'Invalid thread ID from OpenAI.' });
       }
       threadId = thread.id;
-      threadStore[userId] = threadId;
-      console.log(`Created thread ${threadId} for user ${userId}`);
+      if (userId) threadStore[userId] = threadId; // best-effort cache only
+      console.log(`Created thread ${threadId}${userId ? ` for user ${userId}` : ''}`);
     }
 
     // Add user message
@@ -85,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ? (responseMessage.content[0] as any).text.value
         : 'No valid assistant response.';
 
-    return res.status(200).json({ output: reply });
+    return res.status(200).json({ output: reply, threadId });
   } catch (error: any) {
     const detail = error?.response?.data || error?.message || 'Unknown error';
     console.error('Assistant error:', detail);
