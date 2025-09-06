@@ -26,9 +26,10 @@ export default function Assistant() {
 
       const data = await res.json();
       if (!res.ok) {
+        const hint = data?.hint ? ` (hint: ${data.hint})` : '';
         setMessages((prev) => [
           ...prev,
-          `Error: ${data?.error || 'Unknown error.'}`,
+          `Error: ${data?.error || 'Unknown error.'}${hint}`,
         ]);
       } else {
         setMessages((prev) => [...prev, `Angel: ${data.output}`]);
