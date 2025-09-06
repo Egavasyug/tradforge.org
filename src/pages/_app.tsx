@@ -3,7 +3,7 @@ import '@/styles/globals.css';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <div className="min-h-screen bg-rose-50">
+    <div className="min-h-screen">
       <Component {...pageProps} />
     </div>
   );

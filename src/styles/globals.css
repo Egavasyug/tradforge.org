@@ -2,10 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global background color (light pink) */
+/* Global background + text (Parchment + Charcoal) */
 html, body, #__next {
   height: 100%;
 }
 body {
-  background-color: #fff1f2; /* Tailwind rose-50 */
+  background-color: #fefbf4; /* Parchment */
+  color: #1e1e1e; /* Charcoal text */
 }
