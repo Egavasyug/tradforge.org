@@ -66,6 +66,12 @@ export default function Assistant() {
     setInput('');
   };
 
+  const handleReset = () => {
+    localStorage.removeItem('assistant_thread_id');
+    threadIdRef.current = null;
+    setMessages([]);
+  };
+
   return (
     <div className="mt-6 border-t pt-4">
       <div className="space-y-2">
@@ -82,6 +88,9 @@ export default function Assistant() {
         />
         <button type="submit" className="bg-black text-white px-4 py-1 rounded">
           Send
+        </button>
+        <button type="button" onClick={handleReset} className="px-3 py-1 rounded border">
+          Reset
         </button>
       </form>
     </div>

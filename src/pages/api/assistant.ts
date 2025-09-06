@@ -2,6 +2,8 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
+import { getThreadId, setThreadId } from '@/lib/threadStore';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 // In-memory user-thread store
 const threadStore: Record<string, string> = {};
@@ -32,8 +34,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const openai = new OpenAI({ apiKey });
 
   try {
+    // Basic rate limit per user or IP
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const rlId = userId || ip;
+    const { allowed, count } = await checkRateLimit(String(rlId));
+    if (!allowed) {
+      return res.status(429).json({ error: 'Too many requests. Please slow down.' });
+    }
     // Prefer client-provided threadId to ensure persistence across serverless invocations
-    let threadId = clientThreadId || threadStore[userId];
+    let threadId = clientThreadId || (userId ? await getThreadId(userId) : null);
 
     // Create a thread if none provided/known
     if (!threadId) {
@@ -43,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(500).json({ error: 'Invalid thread ID from OpenAI.' });
       }
       threadId = thread.id;
-      if (userId) threadStore[userId] = threadId; // best-effort cache only
+      if (userId) await setThreadId(userId, threadId);
       console.log(`Created thread ${threadId}${userId ? ` for user ${userId}` : ''}`);
     }
 
