@@ -3,10 +3,26 @@
 @tailwind utilities;
 
 /* Global background + text (Parchment + Charcoal) */
+:root {
+  --color-bg: #fefbf4;        /* Parchment */
+  --color-text: #1e1e1e;      /* Charcoal */
+  --color-heading: #111827;   /* Slate-900 */
+  --color-link: #7c3aed;      /* Violet-600 */
+  --color-link-hover: #6d28d9;/* Violet-700 */
+  --color-border: #e6dfcf;    /* Warm border */
+}
 html, body, #__next {
   height: 100%;
 }
-body {
-  background-color: #fefbf4; /* Parchment */
-  color: #1e1e1e; /* Charcoal text */
-}
+body { background-color: var(--color-bg); color: var(--color-text); }
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 { color: var(--color-heading); }
+
+/* Links */
+a { color: var(--color-link); text-decoration: underline; text-underline-offset: 2px; }
+a:hover { color: var(--color-link-hover); }
+
+/* Borders and separators */
+hr { border-color: var(--color-border); opacity: 1; }
+input, textarea, select { background-color: #fffdf8; border-color: var(--color-border); color: var(--color-text); }
