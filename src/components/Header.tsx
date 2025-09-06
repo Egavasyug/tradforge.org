@@ -1,6 +1,6 @@
 export default function Header() {
   return (
-    <header className="p-4 bg-gray-900 text-white">
+    <header className="site-header p-4">
       <h1 className="text-xl font-semibold">TradForge</h1>
     </header>
   )

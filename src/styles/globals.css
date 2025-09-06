@@ -26,3 +26,10 @@ a:hover { color: var(--color-link-hover); }
 /* Borders and separators */
 hr { border-color: var(--color-border); opacity: 1; }
 input, textarea, select { background-color: #fffdf8; border-color: var(--color-border); color: var(--color-text); }
+
+/* Header bar */
+.site-header {
+  background-color: #fffdf8; /* slightly lighter than bg for subtle contrast */
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-heading);
+}
