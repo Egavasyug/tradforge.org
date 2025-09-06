@@ -63,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('Invalid threadId or run.id:', { threadId, runId: (run as any)?.id });
       return res.status(500).json({ error: 'Invalid thread or run ID.' });
     }
-    let runStatus = await (openai.beta.threads.runs as any).retrieve(threadId, run.id);
+    let runStatus = await (openai.beta.threads.runs as any).retrieve(run.id, { thread_id: threadId });
 
     let attempts = 0;
     const maxAttempts = 30;
@@ -74,7 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      runStatus = await (openai.beta.threads.runs as any).retrieve(threadId, run.id);
+      runStatus = await (openai.beta.threads.runs as any).retrieve(run.id, { thread_id: threadId });
       attempts++;
     }
 
