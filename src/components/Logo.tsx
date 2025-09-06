@@ -2,7 +2,9 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 export default function Logo({ size = 36 }: { size?: number }) {
-  const [src, setSrc] = useState('/tradforge-logo.png');
+  // Prefer the file name the user uploaded (`tradforge-log.png`),
+  // then fall back to `tradforge-logo.png`.
+  const [src, setSrc] = useState('/tradforge-log.png');
 
   return (
     <Image
@@ -11,8 +13,9 @@ export default function Logo({ size = 36 }: { size?: number }) {
       width={size}
       height={size}
       priority
+      unoptimized
       onError={() => {
-        if (src !== '/tradforge-log.png') setSrc('/tradforge-log.png');
+        if (src !== '/tradforge-logo.png') setSrc('/tradforge-logo.png');
       }}
     />
   );
