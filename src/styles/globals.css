@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global background color (light blue) */
+/* Global background color (light pink) */
 html, body, #__next {
   height: 100%;
 }
 body {
-  background-color: #eff6ff; /* Tailwind blue-50 */
+  background-color: #fff1f2; /* Tailwind rose-50 */
 }
