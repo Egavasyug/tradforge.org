@@ -1,0 +1,5 @@
+{
+  // Use the workspace TypeScript version for consistent type-checking
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
