@@ -6,9 +6,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <div className="min-h-screen">
       <Head>
-        {/* Use the site logo as the favicon (PNG works across modern browsers). Include both filenames for robustness. */}
+        {/* Standardized favicon using single source */}
         <link rel="icon" href="/tradforge-logo.png" type="image/png" />
-        <link rel="icon" href="/tradforge-log.png" type="image/png" />
         <link rel="apple-touch-icon" href="/tradforge-logo.png" />
       </Head>
       <Component {...pageProps} />
