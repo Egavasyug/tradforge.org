@@ -70,12 +70,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     while (runStatus.status !== 'completed' && attempts < maxAttempts) {
       if (["failed", "cancelled"].includes(runStatus.status as string)) {
-        return res.status(500).json({ error: 'Assistant run failed or cancelled.' });
+        const lastError = (runStatus as any)?.last_error?.message || (runStatus as any)?.last_error || runStatus.status;
+        return res.status(500).json({ error: 'Assistant run failed or cancelled.', hint: lastError });
+      }
+      if ((runStatus.status as string) === 'requires_action') {
+        return res.status(500).json({
+          error: 'Assistant run requires action (tool outputs).',
+          hint: 'The assistant requested tool outputs, which this endpoint does not yet handle.'
+        });
       }
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       runStatus = await (openai.beta.threads.runs as any).retrieve(run.id, { thread_id: threadId });
       attempts++;
+    }
+
+    if (runStatus.status !== 'completed') {
+      return res.status(500).json({ error: 'Assistant run did not complete in time.', hint: runStatus.status });
     }
 
     // Get assistant response
