@@ -54,8 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // Start assistant run
-    const run = await (openai.beta.threads.runs as any).create({
-      thread_id: threadId,
+    const run = await (openai.beta.threads.runs as any).create(threadId, {
       assistant_id: assistantId,
     });
 
@@ -64,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('Invalid threadId or run.id:', { threadId, runId: (run as any)?.id });
       return res.status(500).json({ error: 'Invalid thread or run ID.' });
     }
-    let runStatus = await (openai.beta.threads.runs as any).retrieve({ thread_id: threadId, run_id: run.id });
+    let runStatus = await (openai.beta.threads.runs as any).retrieve(threadId, run.id);
 
     let attempts = 0;
     const maxAttempts = 30;
@@ -75,12 +74,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      runStatus = await (openai.beta.threads.runs as any).retrieve({ thread_id: threadId, run_id: run.id });
+      runStatus = await (openai.beta.threads.runs as any).retrieve(threadId, run.id);
       attempts++;
     }
 
     // Get assistant response
-    const messages = await (openai.beta.threads.messages as any).list({ thread_id: threadId });
+    const messages = await (openai.beta.threads.messages as any).list(threadId, {});
     console.log('Messages payload:', JSON.stringify(messages, null, 2));
 
     const responseMessage = messages.data.find((msg: any) => msg.role === 'assistant');
