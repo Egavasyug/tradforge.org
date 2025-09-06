@@ -3,10 +3,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 // In-memory user-thread store
 const threadStore: Record<string, string> = {};
 
@@ -22,10 +18,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const assistantId = process.env.ASSISTANT_ID;
-  if (!assistantId) {
-    console.error('Missing ASSISTANT_ID in environment variables');
-    return res.status(500).json({ error: 'Missing assistant configuration.' });
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!assistantId || !apiKey) {
+    const missing = [!assistantId && 'ASSISTANT_ID', !apiKey && 'OPENAI_API_KEY'].filter(Boolean).join(', ');
+    console.error(`Missing required env var(s): ${missing}`);
+    return res.status(500).json({ error: 'Missing assistant configuration. Contact the site admin.' });
   }
+
+  const openai = new OpenAI({ apiKey });
 
   try {
     let threadId = threadStore[userId];
@@ -86,7 +86,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({ output: reply });
   } catch (error: any) {
-    console.error('Assistant error:', error?.response?.data || error.message);
-    return res.status(500).json({ error: 'Internal server error.' });
+    const detail = error?.response?.data || error?.message || 'Unknown error';
+    console.error('Assistant error:', detail);
+    // Provide a slightly more actionable message without leaking sensitive data
+    const hint = typeof detail === 'string' ? detail : detail?.error?.message || 'OpenAI request failed';
+    return res.status(500).json({ error: 'Internal server error.', hint });
   }
 }
