@@ -1,3 +1,6 @@
 .next/
 .history/
 node_modules/
+.env*
+!.env.example
+*.tsbuildinfo

@@ -1,25 +1,44 @@
-// src/components/Assistant.tsx
-
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Assistant() {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState('');
 
+  // Persisted user ID (per session)
+  const userIdRef = useRef(uuidv4());
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    setMessages([...messages, `🧠 You: ${input}`]);
+    setMessages((prev) => [...prev, `You: ${input}`]);
 
-    const res = await fetch('/api/assistant', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input }),
-    });
+    try {
+      const res = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input,
+          userId: userIdRef.current, // persistent across all messages
+        }),
+      });
 
-    const data = await res.json();
-    setMessages([...messages, `🧠 You: ${input}`, `👼 Angel: ${data.reply}`]);
+      const data = await res.json();
+      if (!res.ok) {
+        setMessages((prev) => [
+          ...prev,
+          `Error: ${data?.error || 'Unknown error.'}`,
+        ]);
+      } else {
+        setMessages((prev) => [...prev, `Angel: ${data.output}`]);
+      }
+    } catch (err: any) {
+      setMessages((prev) => [
+        ...prev,
+        `Network error: ${err?.message || 'Request failed.'}`,
+      ]);
+    }
     setInput('');
   };
 

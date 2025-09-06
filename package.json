@@ -5,13 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "next": "latest",
-    "openai": "^5.18.1",
+    "openai": "^5.19.1",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/node": "24.3.0",

@@ -7,52 +7,86 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+// In-memory user-thread store
+const threadStore: Record<string, string> = {};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { input } = req.body;
+  const { input, userId } = req.body as { input?: string; userId?: string };
 
-  if (!input) {
-    return res.status(400).json({ error: 'No input provided' });
+  if (!input || typeof input !== 'string' || !userId) {
+    return res.status(400).json({ error: 'Invalid input or missing userId' });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ error: 'Missing OpenAI API Key' });
+  const assistantId = process.env.ASSISTANT_ID;
+  if (!assistantId) {
+    console.error('Missing ASSISTANT_ID in environment variables');
+    return res.status(500).json({ error: 'Missing assistant configuration.' });
   }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are Angel, the TradForge AI. Offer deeply reflective guidance rooted in family, tradition, fertility, and cultural strength.',
-        },
-        {
-          role: 'user',
-          content: input,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 300,
-    });
+    let threadId = threadStore[userId];
 
-    const reply = completion.choices?.[0]?.message?.content?.trim();
-
-    if (!reply) {
-      console.error('No message content returned from OpenAI', completion);
-      return res.status(500).json({ error: 'No valid response from Angel.' });
+    // Create a thread for the user if one doesn't exist
+    if (!threadId) {
+      const thread = await openai.beta.threads.create({});
+      if (typeof thread.id !== 'string') {
+        console.error('thread.id is not a string:', thread.id);
+        return res.status(500).json({ error: 'Invalid thread ID from OpenAI.' });
+      }
+      threadId = thread.id;
+      threadStore[userId] = threadId;
+      console.log(`Created thread ${threadId} for user ${userId}`);
     }
 
-    res.status(200).json({ reply });
+    // Add user message
+    await openai.beta.threads.messages.create(threadId, {
+      role: 'user',
+      content: input,
+    });
+
+    // Start assistant run
+    const run = await openai.beta.threads.runs.create(threadId, {
+      assistant_id: assistantId,
+    });
+
+    // Poll for run completion
+    if (!threadId || typeof threadId !== 'string' || !run.id || typeof run.id !== 'string') {
+      console.error('Invalid threadId or run.id:', { threadId, runId: (run as any)?.id });
+      return res.status(500).json({ error: 'Invalid thread or run ID.' });
+    }
+    let runStatus = await (openai.beta.threads.runs as any).retrieve(threadId, run.id);
+
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    while (runStatus.status !== 'completed' && attempts < maxAttempts) {
+      if (["failed", "cancelled"].includes(runStatus.status as string)) {
+        return res.status(500).json({ error: 'Assistant run failed or cancelled.' });
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      runStatus = await (openai.beta.threads.runs as any).retrieve(threadId, run.id);
+      attempts++;
+    }
+
+    // Get assistant response
+    const messages = await (openai.beta.threads.messages as any).list(threadId, {});
+    console.log('Messages payload:', JSON.stringify(messages, null, 2));
+
+    const responseMessage = messages.data.find((msg: any) => msg.role === 'assistant');
+
+    const reply =
+      responseMessage?.content?.[0]?.type === 'text'
+        ? (responseMessage.content[0] as any).text.value
+        : 'No valid assistant response.';
+
+    return res.status(200).json({ output: reply });
   } catch (error: any) {
-    console.error('❌ OpenAI API Error:', error?.response?.data || error.message);
-    res.status(500).json({ error: 'Angel encountered a connection issue.' });
+    console.error('Assistant error:', error?.response?.data || error.message);
+    return res.status(500).json({ error: 'Internal server error.' });
   }
 }
