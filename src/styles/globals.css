@@ -10,6 +10,7 @@
   --color-link: #7c3aed;      /* Violet-600 */
   --color-link-hover: #6d28d9;/* Violet-700 */
   --color-border: #e6dfcf;    /* Warm border */
+  --color-panel: #fffdf8;     /* Panel/card background */
 }
 html, body, #__next {
   height: 100%;
@@ -29,7 +30,7 @@ input, textarea, select { background-color: #fffdf8; border-color: var(--color-b
 
 /* Header bar */
 .site-header {
-  background-color: #fffdf8; /* slightly lighter than bg for subtle contrast */
+  background-color: var(--color-panel); /* slightly lighter than bg for subtle contrast */
   border-bottom: 1px solid var(--color-border);
   color: var(--color-heading);
 }
