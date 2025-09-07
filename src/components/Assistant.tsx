@@ -6,6 +6,8 @@ export default function Assistant() {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   // Persisted user ID (browser localStorage)
   const userIdRef = useRef<string>('');
@@ -28,6 +30,10 @@ export default function Assistant() {
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
     setMessages((prev) => [...prev, `You: ${message}`]);
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setShowHeader(false); // auto-hide header after first message
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/assistant', {
@@ -75,14 +81,41 @@ export default function Assistant() {
         ))}
       </div>
 
-      {/* Avatar + minimal header (no repeated intro) */}
-      <div className="flex items-center space-x-4 p-4 bg-[var(--color-panel)] border border-[var(--color-border)] shadow-sm rounded-md mb-2 fade-in">
-        <Image src="/Angel-Avatar.png" alt="Angel Avatar" width={48} height={48} className="w-12 h-12 rounded-full border object-cover" priority />
-        <div>
-          <p className="text-sm font-semibold text-gray-700">Angel</p>
-          <p className="text-sm text-gray-500">Ask me anything...</p>
+      {/* Compact header with show/hide toggle */}
+      {showHeader ? (
+        <div className="p-4 bg-[var(--color-panel)] border border-[var(--color-border)] shadow-sm rounded-md mb-2 fade-in">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <Image src="/Angel-Avatar.png" alt="Angel Avatar" width={48} height={48} className="w-12 h-12 rounded-full border object-cover" priority />
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Angel</p>
+                <p className="text-sm text-gray-500">Ask me anything...</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowHeader(false)}
+              className="text-xs text-gray-600 underline hover:text-gray-800"
+              disabled={loading}
+              aria-expanded={showHeader}
+            >
+              Hide
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="mb-2">
+          <button
+            type="button"
+            onClick={() => setShowHeader(true)}
+            className="text-xs text-gray-600 underline hover:text-gray-800"
+            disabled={loading}
+            aria-expanded={showHeader}
+          >
+            Show header
+          </button>
+        </div>
+      )}
 
       {loading && <p className="text-xs text-gray-500 mb-2">Angel is thinking...</p>}
 
@@ -104,4 +137,3 @@ export default function Assistant() {
     </div>
   );
 }
-
