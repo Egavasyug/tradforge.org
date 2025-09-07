@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 export default function Assistant() {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Persisted user ID (browser localStorage)
   const userIdRef = useRef<string>('');
@@ -26,23 +27,20 @@ export default function Assistant() {
     if (storedThread) threadIdRef.current = storedThread;
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
-    setMessages((prev) => [...prev, `You: ${input}`]);
-
+  const sendMessage = async (message: string) => {
+    if (!message.trim()) return;
+    setMessages((prev) => [...prev, `You: ${message}`]);
+    setLoading(true);
     try {
       const res = await fetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          input,
-          userId: userIdRef.current, // persistent across all messages
+          input: message,
+          userId: userIdRef.current,
           threadId: threadIdRef.current,
         }),
       });
-
       const data = await res.json();
       if (!res.ok) {
         const hint = data?.hint ? ` (hint: ${data.hint})` : '';
@@ -51,7 +49,6 @@ export default function Assistant() {
           `Error: ${data?.error || 'Unknown error.'}${hint}`,
         ]);
       } else {
-        // Save thread id if returned
         if (data?.threadId && data.threadId !== threadIdRef.current) {
           threadIdRef.current = data.threadId;
           localStorage.setItem('assistant_thread_id', data.threadId);
@@ -63,14 +60,34 @@ export default function Assistant() {
         ...prev,
         `Network error: ${err?.message || 'Request failed.'}`,
       ]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+    const toSend = input;
     setInput('');
+    await sendMessage(toSend);
   };
 
   const handleReset = () => {
     localStorage.removeItem('assistant_thread_id');
     threadIdRef.current = null;
     setMessages([]);
+  };
+
+  const quickPrompts = [
+    'What is TradForge?',
+    'How do I join the DAO?',
+    'What are soulbound NFTs?'
+  ];
+
+  const handleQuickAsk = async (prompt: string) => {
+    if (loading) return;
+    await sendMessage(prompt);
   };
 
   return (
@@ -96,14 +113,32 @@ export default function Assistant() {
         </div>
       </div>
       <p className="text-xs text-gray-600 mb-3">Tip: Ask Angel about DAO values, curriculum, soulbound NFTs, or how to join.</p>
+      {/* Quick-start chips */}
+      <div className="mb-3 flex flex-wrap gap-2">
+        {quickPrompts.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => handleQuickAsk(q)}
+            disabled={loading}
+            className="text-xs px-3 py-1 rounded-full border border-[var(--color-border)] bg-[var(--color-panel)] hover:bg-white disabled:opacity-50"
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+      {loading && (
+        <p className="text-xs text-gray-500 mb-2">Angel is thinking...</p>
+      )}
       <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
         <input
-          className="border px-3 py-1 rounded w-full"
+          className="border px-3 py-1 rounded w-full disabled:opacity-60"
           placeholder="Ask Angel anything..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          disabled={loading}
         />
-        <button type="submit" className="bg-black text-white px-4 py-1 rounded">
+        <button type="submit" className="bg-black text-white px-4 py-1 rounded disabled:opacity-50" disabled={loading} aria-busy={loading}>
           Send
         </button>
         <button type="button" onClick={handleReset} className="px-3 py-1 rounded border">
