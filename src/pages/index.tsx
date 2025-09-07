@@ -13,7 +13,33 @@ export default function Home() {
         <h1 className="text-3xl font-bold">Welcome to TradForge</h1>
         <p className="mt-4">This is the official frontend for the cultural DAO.</p>
 
-        {/* Assistant UI (ForgeAgent vΞ) */}
+        {/* Intro: Angel assistant with whitepaper link */}
+        <div
+          className="mt-6"
+          style={{
+            marginBottom: '1em',
+            padding: '1em',
+            backgroundColor: '#f5f5f5',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+          }}
+        >
+          <h3 className="text-lg font-semibold">🤖 Meet Angel — Your TradForge Assistant</h3>
+          <p className="mt-2">
+            Angel is an AI assistant powered by our <strong>RAG (Retrieval-Augmented Generation)</strong> model, built on the{' '}
+            <a
+              href="/TradForge_Whitepaper_Soulbound.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'underline' }}
+            >
+              TradForge whitepaper
+            </a>
+            . Ask her anything about the DAO’s values, curriculum, soulbound NFTs, or how to join the mission.
+          </p>
+        </div>
+
+        {/* Assistant UI (ForgeAgent vIz) */}
         <div className="mt-8">
           <Assistant />
         </div>
@@ -21,3 +47,4 @@ export default function Home() {
     </div>
   )
 }
+
