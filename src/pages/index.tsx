@@ -14,7 +14,7 @@ export default function Home() {
         <p className="mt-4">This is the official frontend for the cultural DAO.</p>
 
         {/* Intro: Angel assistant with whitepaper link */}
-        <div className="mt-6 mb-4 p-4 bg-[#f5f5f5] border border-[#ddd] rounded-lg">
+        <div className="mt-6 mb-4 p-4 bg-[#fffdf8] border border-[var(--color-border)] rounded-lg">
           <h3 className="text-lg font-semibold">🤖 Meet Angel — Your TradForge Assistant</h3>
           <p className="mt-2">
             Angel is an AI assistant powered by our <strong>RAG (Retrieval-Augmented Generation)</strong> model, built on the{' '}
