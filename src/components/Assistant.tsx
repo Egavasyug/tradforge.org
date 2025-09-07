@@ -13,7 +13,6 @@ export default function Assistant() {
   const threadIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Load or create user id
     const storedUser = localStorage.getItem('assistant_user_id');
     if (storedUser) {
       userIdRef.current = storedUser;
@@ -22,7 +21,6 @@ export default function Assistant() {
       userIdRef.current = id;
       localStorage.setItem('assistant_user_id', id);
     }
-    // Load thread id if present
     const storedThread = localStorage.getItem('assistant_thread_id');
     if (storedThread) threadIdRef.current = storedThread;
   }, []);
@@ -35,19 +33,12 @@ export default function Assistant() {
       const res = await fetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input: message,
-          userId: userIdRef.current,
-          threadId: threadIdRef.current,
-        }),
+        body: JSON.stringify({ input: message, userId: userIdRef.current, threadId: threadIdRef.current }),
       });
       const data = await res.json();
       if (!res.ok) {
         const hint = data?.hint ? ` (hint: ${data.hint})` : '';
-        setMessages((prev) => [
-          ...prev,
-          `Error: ${data?.error || 'Unknown error.'}${hint}`,
-        ]);
+        setMessages((prev) => [...prev, `Error: ${data?.error || 'Unknown error.'}${hint}`]);
       } else {
         if (data?.threadId && data.threadId !== threadIdRef.current) {
           threadIdRef.current = data.threadId;
@@ -56,10 +47,7 @@ export default function Assistant() {
         setMessages((prev) => [...prev, `Angel: ${data.output}`]);
       }
     } catch (err: any) {
-      setMessages((prev) => [
-        ...prev,
-        `Network error: ${err?.message || 'Request failed.'}`,
-      ]);
+      setMessages((prev) => [...prev, `Network error: ${err?.message || 'Request failed.'}`]);
     } finally {
       setLoading(false);
     }
@@ -79,17 +67,6 @@ export default function Assistant() {
     setMessages([]);
   };
 
-  const quickPrompts = [
-    'What is TradForge?',
-    'How do I join the DAO?',
-    'What are soulbound NFTs?'
-  ];
-
-  const handleQuickAsk = async (prompt: string) => {
-    if (loading) return;
-    await sendMessage(prompt);
-  };
-
   return (
     <div className="mt-6 border-t pt-4">
       <div className="space-y-2">
@@ -97,39 +74,18 @@ export default function Assistant() {
           <p key={idx} className="text-sm">{msg}</p>
         ))}
       </div>
-      {/* Avatar + Introduction block */}
+
+      {/* Avatar + minimal header (no repeated intro) */}
       <div className="flex items-center space-x-4 p-4 bg-[var(--color-panel)] border border-[var(--color-border)] shadow-sm rounded-md mb-2 fade-in">
-        <Image
-          src="/Angel-Avatar.png"
-          alt="Angel Avatar"
-          width={64}
-          height={64}
-          className="w-16 h-16 rounded-full border-2 border-gray-300 object-cover"
-          priority
-        />
+        <Image src="/Angel-Avatar.png" alt="Angel Avatar" width={48} height={48} className="w-12 h-12 rounded-full border object-cover" priority />
         <div>
-          <p className="text-lg font-semibold text-gray-800">Angel</p>
-          <p className="text-sm text-gray-600">Hi, I’m Angel, your cultural AI assistant. Ask me anything about TradForge.</p>
+          <p className="text-sm font-semibold text-gray-700">Angel</p>
+          <p className="text-sm text-gray-500">Ask me anything...</p>
         </div>
       </div>
-      <p className="text-xs text-gray-600 mb-3">Tip: Ask Angel about DAO values, curriculum, soulbound NFTs, or how to join.</p>
-      {/* Quick-start chips */}
-      <div className="mb-3 flex flex-wrap gap-2">
-        {quickPrompts.map((q) => (
-          <button
-            key={q}
-            type="button"
-            onClick={() => handleQuickAsk(q)}
-            disabled={loading}
-            className="text-xs px-3 py-1 rounded-full border border-[var(--color-border)] bg-[var(--color-panel)] hover:bg-white disabled:opacity-50"
-          >
-            {q}
-          </button>
-        ))}
-      </div>
-      {loading && (
-        <p className="text-xs text-gray-500 mb-2">Angel is thinking...</p>
-      )}
+
+      {loading && <p className="text-xs text-gray-500 mb-2">Angel is thinking...</p>}
+
       <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
         <input
           className="border px-3 py-1 rounded w-full disabled:opacity-60"
@@ -148,3 +104,4 @@ export default function Assistant() {
     </div>
   );
 }
+
