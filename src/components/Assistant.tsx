@@ -79,6 +79,14 @@ export default function Assistant() {
           <p key={idx} className="text-sm">{msg}</p>
         ))}
       </div>
+      {/* Avatar + Introduction block */}
+      <div className="flex items-center space-x-4 p-4 bg-[var(--color-panel)] border border-[var(--color-border)] shadow-sm rounded-md mb-4 fade-in">
+        <img src="/Angel-Avatar.png" alt="Angel Avatar" className="w-16 h-16 rounded-full border-2 border-gray-300" />
+        <div>
+          <p className="text-lg font-semibold text-gray-800">Angel</p>
+          <p className="text-sm text-gray-600">Hi, I’m Angel, your cultural AI assistant. Ask me anything about TradForge.</p>
+        </div>
+      </div>
       <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
         <input
           className="border px-3 py-1 rounded w-full"
