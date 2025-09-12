@@ -12,6 +12,14 @@ export default function Header() {
         <nav className="flex items-center gap-4 text-sm" aria-label="Primary">
           <Link href="/#mission" className="hover:no-underline">Mission</Link>
           <Link href="/#vision" className="hover:no-underline">Vision</Link>
+          <a
+            href="https://basescan.org/address/0xa5A750f3eF47fc35e5c1Af2c54C1182Abb392125"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:no-underline"
+          >
+            DAO
+          </a>
         </nav>
       </div>
     </header>
