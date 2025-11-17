@@ -25,11 +25,16 @@ const markdownComponents: Components = {
       </a>
     );
   },
-  code({ inline, className, children, ...props }) {
+  code(props) {
+    const { inline, className, children, ...rest } = props as typeof props & {
+      inline?: boolean;
+      className?: string;
+      children?: ReactNode;
+    };
     if (inline) {
       return (
         <code
-          {...props}
+          {...rest}
           className={`rounded bg-gray-100 px-1 py-0.5 font-mono text-[0.85em] ${className || ''}`}
         >
           {children}
@@ -38,7 +43,7 @@ const markdownComponents: Components = {
     }
     return (
       <pre className="my-2 rounded-md bg-gray-900 p-3 text-xs text-gray-100">
-        <code {...props} className={`block overflow-x-auto ${className || ''}`}>
+        <code {...rest} className={`block overflow-x-auto ${className || ''}`}>
           {children}
         </code>
       </pre>
