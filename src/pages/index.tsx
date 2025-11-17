@@ -26,7 +26,7 @@ export default function Home() {
             >
               TradForge whitepaper
             </a>
-            . Ask her anything about the DAO&rsquo;s values, curriculum, soulbound NFTs, or how to join the mission.
+            . Ask her anything about the DAO's values, curriculum, soulbound NFTs, or how to join the mission.
           </p>
         </div>
 
@@ -55,3 +55,4 @@ export default function Home() {
     </div>
   )
 }
+

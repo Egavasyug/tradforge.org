@@ -1,53 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
 import Image from 'next/image';
-import ReactMarkdown from 'react-markdown';
-import type { Components } from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { v4 as uuidv4 } from 'uuid';
 
-type ChatMessage = {
-  id: string;
-  role: 'user' | 'assistant' | 'error';
-  text: string;
-};
-
-const markdownComponents: Components = {
-  a({ children, ...props }) {
-    return (
-      <a
-        {...props}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 underline hover:text-blue-800"
-      >
-        {children as ReactNode}
-      </a>
-    );
-  },
-  code({ inline, className, children, ...props }) {
-    if (inline) {
-      return (
-        <code
-          {...props}
-          className={`rounded bg-gray-100 px-1 py-0.5 font-mono text-[0.85em] ${className || ''}`}
-        >
-          {children}
-        </code>
-      );
-    }
-    return (
-      <pre className="my-2 rounded-md bg-gray-900 p-3 text-xs text-gray-100">
-        <code {...props} className={`block overflow-x-auto ${className || ''}`}>
-          {children}
-        </code>
-      </pre>
-    );
-  },
-};
-
 export default function Assistant() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
@@ -71,13 +27,9 @@ export default function Assistant() {
     if (storedThread) threadIdRef.current = storedThread;
   }, []);
 
-  const pushMessage = (role: ChatMessage['role'], text: string) => {
-    setMessages((prev) => [...prev, { id: uuidv4(), role, text }]);
-  };
-
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
-    pushMessage('user', message);
+    setMessages((prev) => [...prev, `You: ${message}`]);
     if (!hasInteracted) {
       setHasInteracted(true);
       setShowHeader(false); // auto-hide header after first message
@@ -92,16 +44,16 @@ export default function Assistant() {
       const data = await res.json();
       if (!res.ok) {
         const hint = data?.hint ? ` (hint: ${data.hint})` : '';
-        pushMessage('error', `${data?.error || 'Unknown error.'}${hint}`);
+        setMessages((prev) => [...prev, `Error: ${data?.error || 'Unknown error.'}${hint}`]);
       } else {
         if (data?.threadId && data.threadId !== threadIdRef.current) {
           threadIdRef.current = data.threadId;
           localStorage.setItem('assistant_thread_id', data.threadId);
         }
-        pushMessage('assistant', data?.output || '');
+        setMessages((prev) => [...prev, `Angel: ${data.output}`]);
       }
     } catch (err: any) {
-      pushMessage('error', `Network error: ${err?.message || 'Request failed.'}`);
+      setMessages((prev) => [...prev, `Network error: ${err?.message || 'Request failed.'}`]);
     } finally {
       setLoading(false);
     }
@@ -123,28 +75,9 @@ export default function Assistant() {
 
   return (
     <div className="mt-6 border-t pt-4">
-      <div className="space-y-3">
-        {messages.map((msg) => (
-          <div key={msg.id} className="text-sm">
-            {msg.role === 'assistant' ? (
-              <div>
-                <p className="font-semibold text-gray-700">Angel</p>
-                <div className="prose prose-sm max-w-none text-gray-800">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={markdownComponents}
-                  >
-                    {msg.text?.trim() ? msg.text : '_No response_'}
-                  </ReactMarkdown>
-                </div>
-              </div>
-            ) : (
-              <p className={msg.role === 'error' ? 'text-red-600' : ''}>
-                <span className="font-semibold">{msg.role === 'user' ? 'You' : 'Error'}:</span>{' '}
-                {msg.text}
-              </p>
-            )}
-          </div>
+      <div className="space-y-2">
+        {messages.map((msg, idx) => (
+          <p key={idx} className="text-sm">{msg}</p>
         ))}
       </div>
 
