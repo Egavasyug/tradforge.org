@@ -1,51 +1,51 @@
 {
-    "name": "camuverse-web",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev --turbopack",
-        "build": "next build",
-        "start": "next start",
-        "lint": "eslint",
-        "icons:gen": "node scripts/gen-icons.mjs",
-        "docs:import": "node scripts/extract-pptx.js"
-    },
-    "dependencies": {
-        "@reown/appkit": "^1.8.4",
-        "@reown/appkit-adapter-wagmi": "^1.8.4",
-        "@supabase/supabase-js": "^2.81.1",
-        "@tanstack/react-query": "^5.87.4",
-        "next": "15.5.3",
-        "openai": "^6.9.0",
-        "react": "19.1.0",
-        "react-dom": "19.1.0",
-        "react-markdown": "^10.1.0",
-        "remark-gfm": "^4.0.1",
-        "uuid": "^13.0.0",
-        "viem": "^2.37.5",
-        "wagmi": "^2.16.9"
-    },
-    "devDependencies": {
-        "@eslint/eslintrc": "^3",
-        "@mdx-js/loader": "^2.3.0",
-        "@mdx-js/react": "^2.3.0",
-        "@next/mdx": "^15.5.3",
-        "@tailwindcss/postcss": "^4",
-        "@types/node": "^20",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
-        "autoprefixer": "^10.4.22",
-        "eslint": "^9",
-        "eslint-config-next": "15.5.3",
-        "fast-xml-parser": "^4.4.1",
-        "jszip": "^3.10.1",
-        "png-to-ico": "^3.0.1",
-        "sharp": "^0.34.3",
-        "tailwindcss": "^4",
-        "typescript": "^5"
-    },
-    "engines": {
-        "node": ">=18.18",
-        "npm": ">=9"
-    }
+  "name": "camuverse-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "icons:gen": "node scripts/gen-icons.mjs",
+    "docs:import": "node scripts/extract-pptx.js"
+  },
+  "dependencies": {
+    "@reown/appkit": "^1.8.4",
+    "@reown/appkit-adapter-wagmi": "^1.8.4",
+    "@supabase/supabase-js": "^2.81.1",
+    "@tanstack/react-query": "^5.87.4",
+    "next": "15.5.9",
+    "openai": "^6.9.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "uuid": "^13.0.0",
+    "viem": "^2.37.5",
+    "wagmi": "^2.16.9"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@mdx-js/loader": "^2.3.0",
+    "@mdx-js/react": "^2.3.0",
+    "@next/mdx": "^15.5.3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.22",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.3",
+    "fast-xml-parser": "^4.4.1",
+    "jszip": "^3.10.1",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.34.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.18",
+    "npm": ">=9"
+  }
 }
