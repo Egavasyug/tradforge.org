@@ -9,14 +9,18 @@ export default function Header() {
           <Logo size={36} />
           <h1 className="text-xl font-semibold">TradForge</h1>
         </div>
-        <nav className="flex items-center gap-4 text-sm" aria-label="Primary">
-          <Link href="/#mission" className="hover:no-underline">Mission</Link>
-          <Link href="/#vision" className="hover:no-underline">Vision</Link>
+        <nav
+          className="flex items-center text-sm"
+          style={{ gap: '1rem' }} // ensure visible separation even if utility classes change
+          aria-label="Primary"
+        >
+          <Link href="/#mission" className="hover:no-underline px-1">Mission</Link>
+          <Link href="/#vision" className="hover:no-underline px-1">Vision</Link>
           <a
             href="https://basescan.org/address/0xa5A750f3eF47fc35e5c1Af2c54C1182Abb392125"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:no-underline"
+            className="hover:no-underline px-1"
           >
             DAO
           </a>
